@@ -18,105 +18,97 @@ import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import * as nestAccessControl from "nest-access-control";
 import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
-import { UserService } from "../user.service";
+import { EmailService } from "../email.service";
 import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
-import { UserCreateInput } from "./UserCreateInput";
-import { UserWhereInput } from "./UserWhereInput";
-import { UserWhereUniqueInput } from "./UserWhereUniqueInput";
-import { UserFindManyArgs } from "./UserFindManyArgs";
-import { UserUpdateInput } from "./UserUpdateInput";
-import { User } from "./User";
+import { EmailCreateInput } from "./EmailCreateInput";
+import { EmailWhereInput } from "./EmailWhereInput";
+import { EmailWhereUniqueInput } from "./EmailWhereUniqueInput";
+import { EmailFindManyArgs } from "./EmailFindManyArgs";
+import { EmailUpdateInput } from "./EmailUpdateInput";
+import { Email } from "./Email";
 
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
-export class UserControllerBase {
+export class EmailControllerBase {
   constructor(
-    protected readonly service: UserService,
+    protected readonly service: EmailService,
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
   @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
-  @swagger.ApiCreatedResponse({ type: User })
+  @swagger.ApiCreatedResponse({ type: Email })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "create",
     possession: "any",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async create(@common.Body() data: UserCreateInput): Promise<User> {
+  async create(@common.Body() data: EmailCreateInput): Promise<Email> {
     return await this.service.create({
       data: {
         ...data,
 
-        emails: data.emails
+        userId: data.userId
           ? {
-              connect: data.emails,
+              connect: data.userId,
             }
           : undefined,
       },
       select: {
         createdAt: true,
+        email: true,
+        id: true,
+        updatedAt: true,
 
-        emails: {
+        userId: {
           select: {
             id: true,
           },
         },
-
-        firstName: true,
-        id: true,
-        lastName: true,
-        roles: true,
-        updatedAt: true,
-        username: true,
       },
     });
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
-  @swagger.ApiOkResponse({ type: [User] })
-  @ApiNestedQuery(UserFindManyArgs)
+  @swagger.ApiOkResponse({ type: [Email] })
+  @ApiNestedQuery(EmailFindManyArgs)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "read",
     possession: "any",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async findMany(@common.Req() request: Request): Promise<User[]> {
-    const args = plainToClass(UserFindManyArgs, request.query);
+  async findMany(@common.Req() request: Request): Promise<Email[]> {
+    const args = plainToClass(EmailFindManyArgs, request.query);
     return this.service.findMany({
       ...args,
       select: {
         createdAt: true,
+        email: true,
+        id: true,
+        updatedAt: true,
 
-        emails: {
+        userId: {
           select: {
             id: true,
           },
         },
-
-        firstName: true,
-        id: true,
-        lastName: true,
-        roles: true,
-        updatedAt: true,
-        username: true,
       },
     });
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
-  @swagger.ApiOkResponse({ type: User })
+  @swagger.ApiOkResponse({ type: Email })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "read",
     possession: "own",
   })
@@ -124,25 +116,21 @@ export class UserControllerBase {
     type: errors.ForbiddenException,
   })
   async findOne(
-    @common.Param() params: UserWhereUniqueInput
-  ): Promise<User | null> {
+    @common.Param() params: EmailWhereUniqueInput
+  ): Promise<Email | null> {
     const result = await this.service.findOne({
       where: params,
       select: {
         createdAt: true,
+        email: true,
+        id: true,
+        updatedAt: true,
 
-        emails: {
+        userId: {
           select: {
             id: true,
           },
         },
-
-        firstName: true,
-        id: true,
-        lastName: true,
-        roles: true,
-        updatedAt: true,
-        username: true,
       },
     });
     if (result === null) {
@@ -155,10 +143,10 @@ export class UserControllerBase {
 
   @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
-  @swagger.ApiOkResponse({ type: User })
+  @swagger.ApiOkResponse({ type: Email })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "update",
     possession: "any",
   })
@@ -166,36 +154,32 @@ export class UserControllerBase {
     type: errors.ForbiddenException,
   })
   async update(
-    @common.Param() params: UserWhereUniqueInput,
-    @common.Body() data: UserUpdateInput
-  ): Promise<User | null> {
+    @common.Param() params: EmailWhereUniqueInput,
+    @common.Body() data: EmailUpdateInput
+  ): Promise<Email | null> {
     try {
       return await this.service.update({
         where: params,
         data: {
           ...data,
 
-          emails: data.emails
+          userId: data.userId
             ? {
-                connect: data.emails,
+                connect: data.userId,
               }
             : undefined,
         },
         select: {
           createdAt: true,
+          email: true,
+          id: true,
+          updatedAt: true,
 
-          emails: {
+          userId: {
             select: {
               id: true,
             },
           },
-
-          firstName: true,
-          id: true,
-          lastName: true,
-          roles: true,
-          updatedAt: true,
-          username: true,
         },
       });
     } catch (error) {
@@ -209,10 +193,10 @@ export class UserControllerBase {
   }
 
   @common.Delete("/:id")
-  @swagger.ApiOkResponse({ type: User })
+  @swagger.ApiOkResponse({ type: Email })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "delete",
     possession: "any",
   })
@@ -220,26 +204,22 @@ export class UserControllerBase {
     type: errors.ForbiddenException,
   })
   async delete(
-    @common.Param() params: UserWhereUniqueInput
-  ): Promise<User | null> {
+    @common.Param() params: EmailWhereUniqueInput
+  ): Promise<Email | null> {
     try {
       return await this.service.delete({
         where: params,
         select: {
           createdAt: true,
+          email: true,
+          id: true,
+          updatedAt: true,
 
-          emails: {
+          userId: {
             select: {
               id: true,
             },
           },
-
-          firstName: true,
-          id: true,
-          lastName: true,
-          roles: true,
-          updatedAt: true,
-          username: true,
         },
       });
     } catch (error) {

@@ -9,11 +9,21 @@ generator client {
 
 model User {
   createdAt DateTime @default(now())
+  emails    Email?
   firstName String?
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   lastName  String?
   password  String
   roles     Json
   updatedAt DateTime @updatedAt
   username  String   @unique
+}
+
+model Email {
+  createdAt DateTime @default(now())
+  email     String?
+  id        String   @id @default(cuid())
+  updatedAt DateTime @updatedAt
+  userId    User?    @relation(fields: [id], references: [id])
+  id        String?  @unique
 }

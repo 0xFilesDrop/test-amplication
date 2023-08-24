@@ -19,31 +19,31 @@ import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
 import * as common from "@nestjs/common";
 import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { CreateUserArgs } from "./CreateUserArgs";
-import { UpdateUserArgs } from "./UpdateUserArgs";
-import { DeleteUserArgs } from "./DeleteUserArgs";
-import { UserCountArgs } from "./UserCountArgs";
-import { UserFindManyArgs } from "./UserFindManyArgs";
-import { UserFindUniqueArgs } from "./UserFindUniqueArgs";
-import { User } from "./User";
-import { Email } from "../../email/base/Email";
-import { UserService } from "../user.service";
+import { CreateEmailArgs } from "./CreateEmailArgs";
+import { UpdateEmailArgs } from "./UpdateEmailArgs";
+import { DeleteEmailArgs } from "./DeleteEmailArgs";
+import { EmailCountArgs } from "./EmailCountArgs";
+import { EmailFindManyArgs } from "./EmailFindManyArgs";
+import { EmailFindUniqueArgs } from "./EmailFindUniqueArgs";
+import { Email } from "./Email";
+import { User } from "../../user/base/User";
+import { EmailService } from "../email.service";
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
-@graphql.Resolver(() => User)
-export class UserResolverBase {
+@graphql.Resolver(() => Email)
+export class EmailResolverBase {
   constructor(
-    protected readonly service: UserService,
+    protected readonly service: EmailService,
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
   @graphql.Query(() => MetaQueryPayload)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "read",
     possession: "any",
   })
-  async _usersMeta(
-    @graphql.Args() args: UserCountArgs
+  async _emailsMeta(
+    @graphql.Args() args: EmailCountArgs
   ): Promise<MetaQueryPayload> {
     const result = await this.service.count(args);
     return {
@@ -52,24 +52,26 @@ export class UserResolverBase {
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.Query(() => [User])
+  @graphql.Query(() => [Email])
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "read",
     possession: "any",
   })
-  async users(@graphql.Args() args: UserFindManyArgs): Promise<User[]> {
+  async emails(@graphql.Args() args: EmailFindManyArgs): Promise<Email[]> {
     return this.service.findMany(args);
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.Query(() => User, { nullable: true })
+  @graphql.Query(() => Email, { nullable: true })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "read",
     possession: "own",
   })
-  async user(@graphql.Args() args: UserFindUniqueArgs): Promise<User | null> {
+  async email(
+    @graphql.Args() args: EmailFindUniqueArgs
+  ): Promise<Email | null> {
     const result = await this.service.findOne(args);
     if (result === null) {
       return null;
@@ -78,21 +80,21 @@ export class UserResolverBase {
   }
 
   @common.UseInterceptors(AclValidateRequestInterceptor)
-  @graphql.Mutation(() => User)
+  @graphql.Mutation(() => Email)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "create",
     possession: "any",
   })
-  async createUser(@graphql.Args() args: CreateUserArgs): Promise<User> {
+  async createEmail(@graphql.Args() args: CreateEmailArgs): Promise<Email> {
     return await this.service.create({
       ...args,
       data: {
         ...args.data,
 
-        emails: args.data.emails
+        userId: args.data.userId
           ? {
-              connect: args.data.emails,
+              connect: args.data.userId,
             }
           : undefined,
       },
@@ -100,22 +102,24 @@ export class UserResolverBase {
   }
 
   @common.UseInterceptors(AclValidateRequestInterceptor)
-  @graphql.Mutation(() => User)
+  @graphql.Mutation(() => Email)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "update",
     possession: "any",
   })
-  async updateUser(@graphql.Args() args: UpdateUserArgs): Promise<User | null> {
+  async updateEmail(
+    @graphql.Args() args: UpdateEmailArgs
+  ): Promise<Email | null> {
     try {
       return await this.service.update({
         ...args,
         data: {
           ...args.data,
 
-          emails: args.data.emails
+          userId: args.data.userId
             ? {
-                connect: args.data.emails,
+                connect: args.data.userId,
               }
             : undefined,
         },
@@ -130,13 +134,15 @@ export class UserResolverBase {
     }
   }
 
-  @graphql.Mutation(() => User)
+  @graphql.Mutation(() => Email)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Email",
     action: "delete",
     possession: "any",
   })
-  async deleteUser(@graphql.Args() args: DeleteUserArgs): Promise<User | null> {
+  async deleteEmail(
+    @graphql.Args() args: DeleteEmailArgs
+  ): Promise<Email | null> {
     try {
       return await this.service.delete(args);
     } catch (error) {
@@ -150,19 +156,19 @@ export class UserResolverBase {
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.ResolveField(() => Email, {
+  @graphql.ResolveField(() => User, {
     nullable: true,
-    name: "emails",
+    name: "userId",
   })
   @nestAccessControl.UseRoles({
-    resource: "Email",
+    resource: "User",
     action: "read",
     possession: "any",
   })
-  async resolveFieldEmails(
-    @graphql.Parent() parent: User
-  ): Promise<Email | null> {
-    const result = await this.service.getEmails(parent.id);
+  async resolveFieldUserId(
+    @graphql.Parent() parent: Email
+  ): Promise<User | null> {
+    const result = await this.service.getUserId(parent.id);
 
     if (!result) {
       return null;
