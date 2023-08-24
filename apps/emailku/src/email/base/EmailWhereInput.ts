@@ -11,26 +11,14 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { EmailWhereUniqueInput } from "../../email/base/EmailWhereUniqueInput";
-import { ValidateNested, IsOptional } from "class-validator";
-import { Type } from "class-transformer";
 import { StringNullableFilter } from "../../util/StringNullableFilter";
+import { Type } from "class-transformer";
+import { IsOptional, ValidateNested } from "class-validator";
 import { StringFilter } from "../../util/StringFilter";
+import { UserWhereUniqueInput } from "../../user/base/UserWhereUniqueInput";
 
 @InputType()
-class UserWhereInput {
-  @ApiProperty({
-    required: false,
-    type: () => EmailWhereUniqueInput,
-  })
-  @ValidateNested()
-  @Type(() => EmailWhereUniqueInput)
-  @IsOptional()
-  @Field(() => EmailWhereUniqueInput, {
-    nullable: true,
-  })
-  emails?: EmailWhereUniqueInput;
-
+class EmailWhereInput {
   @ApiProperty({
     required: false,
     type: StringNullableFilter,
@@ -40,7 +28,7 @@ class UserWhereInput {
   @Field(() => StringNullableFilter, {
     nullable: true,
   })
-  firstName?: StringNullableFilter;
+  email?: StringNullableFilter;
 
   @ApiProperty({
     required: false,
@@ -55,25 +43,15 @@ class UserWhereInput {
 
   @ApiProperty({
     required: false,
-    type: StringNullableFilter,
+    type: () => UserWhereUniqueInput,
   })
-  @Type(() => StringNullableFilter)
+  @ValidateNested()
+  @Type(() => UserWhereUniqueInput)
   @IsOptional()
-  @Field(() => StringNullableFilter, {
+  @Field(() => UserWhereUniqueInput, {
     nullable: true,
   })
-  lastName?: StringNullableFilter;
-
-  @ApiProperty({
-    required: false,
-    type: StringFilter,
-  })
-  @Type(() => StringFilter)
-  @IsOptional()
-  @Field(() => StringFilter, {
-    nullable: true,
-  })
-  username?: StringFilter;
+  userId?: UserWhereUniqueInput;
 }
 
-export { UserWhereInput as UserWhereInput };
+export { EmailWhereInput as EmailWhereInput };

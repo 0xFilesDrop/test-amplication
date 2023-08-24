@@ -11,15 +11,12 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { ObjectType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, ValidateNested, IsOptional, IsString } from "class-validator";
+import { IsDate, IsString, IsOptional, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
-import { Email } from "../../email/base/Email";
-import { IsJSONValue } from "@app/custom-validators";
-import { GraphQLJSON } from "graphql-type-json";
-import { JsonValue } from "type-fest";
+import { User } from "../../user/base/User";
 
 @ObjectType()
-class User {
+class Email {
   @ApiProperty({
     required: true,
   })
@@ -30,15 +27,6 @@ class User {
 
   @ApiProperty({
     required: false,
-    type: () => Email,
-  })
-  @ValidateNested()
-  @Type(() => Email)
-  @IsOptional()
-  emails?: Email | null;
-
-  @ApiProperty({
-    required: false,
     type: String,
   })
   @IsString()
@@ -46,7 +34,7 @@ class User {
   @Field(() => String, {
     nullable: true,
   })
-  firstName!: string | null;
+  email!: string | null;
 
   @ApiProperty({
     required: true,
@@ -57,24 +45,6 @@ class User {
   id!: string;
 
   @ApiProperty({
-    required: false,
-    type: String,
-  })
-  @IsString()
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
-  })
-  lastName!: string | null;
-
-  @ApiProperty({
-    required: true,
-  })
-  @IsJSONValue()
-  @Field(() => GraphQLJSON)
-  roles!: JsonValue;
-
-  @ApiProperty({
     required: true,
   })
   @IsDate()
@@ -83,12 +53,13 @@ class User {
   updatedAt!: Date;
 
   @ApiProperty({
-    required: true,
-    type: String,
+    required: false,
+    type: () => User,
   })
-  @IsString()
-  @Field(() => String)
-  username!: string;
+  @ValidateNested()
+  @Type(() => User)
+  @IsOptional()
+  userId?: User | null;
 }
 
-export { User as User };
+export { Email as Email };
